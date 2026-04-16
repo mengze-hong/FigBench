@@ -1,0 +1,16 @@
+# Environment
+.env
+venv/
+__pycache__/
+*.pyc
+
+# Data (PDFs are too large, re-download as needed)
+backend/data/pdfs/
+backend/data/bad_figures/
+backend/data/crop_backups/
+backend/data/replace_backups/
+
+# Temp
+_check.py
+_*.py
+*.log
