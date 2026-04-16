@@ -1,87 +1,234 @@
-# AcademicFigureGallery
+<div align="center">
 
-> Curated high-quality, hand-designed academic figures from top-tier NLP/AI conferences.
+# 📊 FigBench
 
-## What is this?
+**A Curated Benchmark of Hand-Designed Academic Figures from Top NLP/AI Conferences**
 
-A platform that extracts and curates **professionally designed figures** (framework overviews, architecture diagrams, dataset illustrations) from research papers at conferences like ACL, EMNLP, and NAACL. Every figure is screened by an LLM to ensure only visually impressive, hand-crafted illustrations make it into the gallery — no standard bar charts or tables.
+[![Figures](https://img.shields.io/badge/Figures-1136-blue?style=for-the-badge)](.)
+[![Papers](https://img.shields.io/badge/Papers-711-green?style=for-the-badge)](.)
+[![Venues](https://img.shields.io/badge/Venues-ACL%20%7C%20EMNLP%20%7C%20NAACL-orange?style=for-the-badge)](.)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
-## Quick Start
+*FigBench is a large-scale, human-curated collection of professionally hand-designed figures extracted from top-tier NLP/AI conference papers, built for figure aesthetic evaluation, retrieval, and preference benchmarking.*
+
+</div>
+
+---
+
+## 🌟 Highlights
+
+- 🎨 **Hand-Designed Only** — Every figure is a professionally crafted illustration (framework overviews, architecture diagrams, pipeline illustrations, etc.). Standard auto-generated charts, tables, and plots are excluded.
+- 🔍 **Rich Metadata** — Each figure has description, multi-dimensional tags, figure type, layout classification, paper title, venue, and caption — enabling powerful retrieval and comparison.
+- 🏷️ **Layout Annotated** — Figures are classified as `standalone` (full-width, clean extraction) or `in-text` (embedded in paper column with surrounding text), supporting controlled evaluation.
+- 🧹 **Human-Verified** — Two-stage quality pipeline: LLM-based screening (HY-Vision-2.0-instruct) followed by manual human review to remove incomplete/corrupted figures.
+- 🌐 **Interactive Web UI** — Built-in gallery with search, tag filtering, in-place cropping, label editing, and figure replacement.
+
+---
+
+## 📋 Dataset Overview
+
+| Metric | Value |
+|--------|-------|
+| **Total Figures** | 1,136 |
+| **Total Papers** | 711 |
+| **Venues** | ACL 2024, EMNLP 2025, NAACL 2025 |
+| **Layout Types** | 582 standalone · 554 in-text |
+| **Figure Types** | 12 categories |
+| **Avg Figures / Paper** | 1.60 |
+| **Format** | JPEG (avg ~200KB per figure) |
+
+### Venue Distribution
+
+| Venue | Papers | Figures |
+|-------|--------|---------|
+| ACL 2024 | 457 | 717 |
+| NAACL 2025 | 133 | 228 |
+| EMNLP 2025 | 121 | 198 |
+
+### Figure Type Distribution
+
+| Type | Count | % |
+|------|-------|---|
+| Comparison | 322 | 28.3% |
+| Conceptual | 149 | 13.1% |
+| Framework Overview | 133 | 11.8% |
+| Methodology | 110 | 9.6% |
+| Task Illustration | 97 | 8.6% |
+| Pipeline | 95 | 8.3% |
+| Model Architecture | 59 | 5.2% |
+| System Architecture | 39 | 3.4% |
+| Dataset Overview | 18 | 1.6% |
+| Taxonomy | 17 | 1.5% |
+
+### Tag System (5 Dimensions)
+
+| Dimension | Example Tags |
+|-----------|-------------|
+| **Structure** | `multi-panel`, `single-panel`, `hierarchical`, `side-by-side` |
+| **Category** | `framework-overview`, `model-architecture`, `pipeline-illustration`, `comparison-illustration` |
+| **Visual** | `custom-icons`, `color-coded`, `labeled-annotations`, `connector-arrows` |
+| **Domain** | `nlp`, `llm`, `multimodal`, `reasoning`, `dialogue`, `code-generation` |
+| **Use Case** | `system-design-reference`, `task-definition`, `evaluation-setup`, `training-pipeline-reference` |
+
+---
+
+## 🚀 Quick Start
+
+### Installation
+
+```bash
+git clone https://github.com/mengze-hong/FigBench.git
+cd FigBench
+pip install -r backend/requirements.txt
+```
+
+### Launch Web Gallery
 
 ```bash
 cd backend
-pip install -r requirements.txt
-python -m uvicorn server:app --host 0.0.0.0 --port 8765
-# Open http://localhost:8765
+python -m uvicorn server:app --host 0.0.0.0 --port 8766
+# Open http://localhost:8766
 ```
 
-## Project Structure
+### Configuration
+
+Copy `.env.example` to `.env` and set your API key (required for data processing pipeline only, not for browsing):
+
+```bash
+cp .env.example .env
+# Edit .env with your LLM API credentials
+```
+
+---
+
+## 🖼️ Web UI Features
+
+The built-in web interface provides:
+
+- **🔍 Search** — Full-text search across descriptions, captions, and paper titles
+- **🏷️ Tag Filtering** — Click tags to filter by category, domain, or visual style
+- **📋 Venue / Type / Layout Filters** — Dropdown filters for all metadata dimensions
+- **✂️ In-Place Cropping** — Click Crop, drag to select region, apply — original backed up automatically
+- **✏️ Label Editing** — Edit description, tags, figure type, and layout directly in the modal
+- **📋 Figure Replacement** — Paste a new image (Ctrl+V) to replace any figure
+- **❌ Manual Flagging** — Hover and click × to remove bad figures (moved to `bad_figures/`)
+
+---
+
+## 📁 Project Structure
 
 ```
-AcademicFigureGallery/
+FigBench/
 ├── README.md
-├── .gitignore
+├── STATISTICS.md              # Auto-generated dataset statistics
+├── start.py                   # One-click server launcher
+│
 ├── backend/
-│   ├── config.py              # Configuration (LLM, paths, thresholds)
+│   ├── config.py              # Centralized configuration
 │   ├── database.py            # SQLite data layer
-│   ├── server.py              # FastAPI backend + frontend serving
+│   ├── server.py              # FastAPI web server + API
+│   ├── log.py                 # Unified logging
 │   ├── requirements.txt
+│   │
 │   ├── pipeline/
-│   │   ├── analyzer.py        # LLM vision: screen + analyze figures
-│   │   ├── extractor.py       # PDF → figure extraction (pypdfium2)
-│   │   ├── maintenance.py     # DB cleanup utilities
-│   │   ├── run.py             # End-to-end pipeline orchestrator
-│   │   └── scraper.py         # ACL Anthology paper scraper
+│   │   ├── run.py             # Unified CLI: download → extract → screen → store
+│   │   ├── scraper.py         # ACL Anthology paper downloader (8-thread concurrent)
+│   │   ├── extractor.py       # PDF figure extraction (caption-guided precise cropping)
+│   │   ├── analyzer.py        # LLM vision screening + tagging (HY-Vision-2.0-instruct)
+│   │   └── maintenance.py     # Dedup, cleanup, stats
+│   │
 │   └── data/
 │       ├── db/gallery.db      # SQLite database
-│       ├── metadata.json      # Exported paper + figure metadata
-│       └── figures/           # Curated figure images (PNG)
+│       ├── metadata.json      # Exported metadata
+│       └── figures/            # 711 paper dirs, 1136 JPEGs
+│
 └── frontend/
     ├── index.html
     ├── app.js
     └── style.css
 ```
 
-## Data
+---
 
-| Venue | Papers | Figures |
-|-------|--------|---------|
-| ACL 2024 | 13 | 23 |
-| NAACL 2025 | 20 | 24 |
-| EMNLP 2025 | 6 | 5 |
-| **Total** | **39** | **52** |
+## ⚙️ Data Processing Pipeline
 
-## Pipeline
+The pipeline processes papers end-to-end in one command:
+
+```bash
+# Process 200 papers from a venue
+python -m pipeline.run --venue 2025.emnlp-main --range 1-200
+
+# Check status
+python -m pipeline.run --status
+
+# Cleanup (dedup + orphan removal)
+python -m pipeline.run --cleanup
+```
+
+### Pipeline Stages
 
 ```
-ACL Anthology → Download PDF → Extract embedded images → LLM screen (accept/reject) → Analyze (description, tags, score) → Gallery
+Download PDF (8-thread) → Extract Figures (caption-guided crop)
+    → LLM Screen (accept hand-designed / reject charts)
+    → LLM Analyze (description + tags + type + layout)
+    → Store to DB → Cleanup
 ```
 
-**Accept**: framework overviews, architecture diagrams, dataset overviews, conceptual illustrations, pipeline diagrams  
-**Reject**: bar/line/pie charts, tables, heatmaps, training curves, ablation plots
+**Screening criteria:**
+- ✅ Accept: framework overviews, architecture diagrams, dataset illustrations, pipeline diagrams, conceptual figures, infographics
+- ❌ Reject: bar/line/pie charts, tables, heatmaps, training curves, confusion matrices, standard matplotlib output
 
-## Tech Stack
+---
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend | Vanilla HTML/CSS/JS |
-| Backend | FastAPI + SQLite |
-| PDF Extraction | pypdfium2 |
-| LLM | HY-Vision-2.0-instruct (Hunyuan) |
-| Data Source | ACL Anthology |
+## 📊 API Reference
 
-## API
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/figures` | GET | Search & browse with pagination, filters |
+| `/api/figures/{id}` | GET | Single figure with full metadata |
+| `/api/figures/{id}` | PATCH | Update description, tags, type, layout |
+| `/api/figures/{id}` | DELETE | Flag as bad (move to bad_figures/) |
+| `/api/figures/{id}/crop` | POST | Crop figure in-place |
+| `/api/figures/{id}/replace` | POST | Replace figure via base64 image |
+| `/api/tags` | GET | All unique tags |
+| `/api/figure-types` | GET | All figure types |
+| `/api/stats` | GET | Dataset statistics |
 
-| Endpoint | Description |
-|----------|-------------|
-| `GET /api/figures` | Search & browse with filters |
-| `GET /api/figures/{id}` | Figure detail |
-| `GET /api/tags` | All tags |
-| `GET /api/figure-types` | All figure types |
-| `GET /api/stats` | Global statistics |
-| `POST /api/ingest` | Trigger paper ingestion |
-| `GET /docs` | Swagger docs |
+---
 
-## License
+## 🗺️ Roadmap
 
-MIT
+- [x] ACL 2024 long papers (457 papers, 717 figures)
+- [x] EMNLP 2025 main (121 papers, 198 figures)
+- [x] NAACL 2025 long (133 papers, 228 figures)
+- [ ] ICML 2025 / NeurIPS 2024 (single-column format)
+- [ ] Pairwise preference annotation for figure aesthetics
+- [ ] Embedding-based similar figure retrieval
+- [ ] Automated figure quality scoring benchmark
+
+---
+
+## 📝 Citation
+
+If you use FigBench in your research, please cite:
+
+```bibtex
+@misc{figbench2025,
+    title={FigBench: A Curated Benchmark of Hand-Designed Academic Figures},
+    author={Meng, Zehong},
+    year={2025},
+    url={https://github.com/mengze-hong/FigBench}
+}
+```
+
+---
+
+## 📬 Contact
+
+For questions or collaboration, please open an [issue](https://github.com/mengze-hong/FigBench/issues) or reach out directly.
+
+---
+
+<div align="center">
+<sub>Built with FastAPI · SQLite · pypdfium2 · HY-Vision-2.0-instruct</sub>
+</div>
